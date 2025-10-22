@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
+import { useEffect, useState } from "react";
+import { usePuterStore } from "~/lib/puter";
+import Summary from "~/components/Summary";
 import ATS from "~/components/ATS";
 import Details from "~/components/Details";
-import Summary from "~/components/Summary";
-import { usePuterStore } from "~/lib/puter";
 
 export const meta = () => [
   { title: "Resumind | Review " },
@@ -11,9 +11,8 @@ export const meta = () => [
 ];
 
 const Resume = () => {
-  const { id } = useParams();
-
   const { auth, isLoading, fs, kv } = usePuterStore();
+  const { id } = useParams();
   const [imageUrl, setImageUrl] = useState("");
   const [resumeUrl, setResumeUrl] = useState("");
   const [feedback, setFeedback] = useState<Feedback | null>(null);
@@ -36,7 +35,6 @@ const Resume = () => {
       if (!resumeBlob) return;
 
       const pdfBlob = new Blob([resumeBlob], { type: "application/pdf" });
-
       const resumeUrl = URL.createObjectURL(pdfBlob);
       setResumeUrl(resumeUrl);
 
@@ -48,8 +46,10 @@ const Resume = () => {
       setFeedback(data.feedback);
       console.log({ resumeUrl, imageUrl, feedback: data.feedback });
     };
+
     loadResume();
   }, [id]);
+
   return (
     <main className="!pt-0">
       <nav className="resume-nav">
@@ -93,5 +93,4 @@ const Resume = () => {
     </main>
   );
 };
-
 export default Resume;
