@@ -7,12 +7,17 @@ import { convertPdfToImage } from "~/lib/pdf2img";
 import { generateUUID } from "~/lib/utils";
 import { prepareInstructions } from "~/constant";
 
+export const meta = () => [
+  { title: "Resumind | Upload " },
+  { name: "description", content: "Upload your resume" },
+];
 const Upload = () => {
-  const { auth, isLoading, fs, ai, kv } = usePuterStore();
+  const { fs, ai, kv } = usePuterStore();
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusText, setStatusText] = useState("");
   const [file, setFile] = useState<File | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileSelect = (file: File | null) => {
     setFile(file);
@@ -78,6 +83,8 @@ const Upload = () => {
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null);
+
     const form = e.currentTarget.closest("form");
     if (!form) return;
     const formData = new FormData(form);
@@ -86,7 +93,15 @@ const Upload = () => {
     const jobTitle = formData.get("job-title") as string;
     const jobDescription = formData.get("job-description") as string;
 
-    if (!file) return;
+    if (!file) {
+      setError("Please upload a PDF file before submitting.");
+      return;
+    }
+
+    if (file.type !== "application/pdf") {
+      setError("Only PDF files are allowed. Please upload a valid PDF.");
+      return;
+    }
 
     handleAnalyze({ companyName, jobTitle, jobDescription, file });
   };
@@ -112,6 +127,9 @@ const Upload = () => {
               onSubmit={handleSubmit}
               className="flex flex-col gap-4 mt-8"
             >
+              {error && (
+                <p className="text-red-600 font-medium mt-2">{error}</p>
+              )}
               <div className="form-div">
                 <label htmlFor="company-name">Company Name</label>
                 <input
